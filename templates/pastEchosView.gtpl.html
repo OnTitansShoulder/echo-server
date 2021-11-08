@@ -49,34 +49,47 @@
 				</a>
 			</header>
 
-            <div>
-                <div id="echos-list">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Host IP</th>
-                                <th scope="col">First Accessed</th>
-                                <th scope="col">Last Accessed</th>
-								<th scope="col">Count</th>
-                            </tr>
-                        </thead>
-						
-                        <tbody>
-							{{ range .Echos }}
-							<tr>
-								<td>{{ .IP }}</td>
-								<td>{{ .FirstHitTime }}</td>
-								<td>{{ .LastHitTime }}</td>
-								<td>{{ .Count }} </td>
-							</tr>
-							{{ end }}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+			<div>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Host IP</th>
+							<th scope="col">First Accessed</th>
+							<th scope="col">Last Accessed</th>
+							<th scope="col">Count</th>
+						</tr>
+					</thead>
+					
+					<tbody id="echos-list">
+						<!-- {{ range .Echos }}
+						<tr>
+							<td>{{ .IP }}</td>
+							<td>{{ .FirstHitTime }}</td>
+							<td>{{ .LastHitTime }}</td>
+							<td>{{ .Count }} </td>
+						</tr>
+						{{ end }} -->
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</body>
 </html>
-<script>
-</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+<script>
+let dataSource = {{ .Echos }};
+dataSource.sort(function (a, b) {
+	return b.LastHitTimestamp - a.LastHitTimestamp;
+});
+let dataHtml = '';
+$.each(dataSource, function (index, echo) {
+	dataHtml += '<tr>\
+					<td>' + echo.IP + '</td>\
+					<td>' + echo.FirstHitTime + '</td>\
+					<td>' + echo.LastHitTime + '</td>\
+					<td>' + echo.Count + '</td>\
+				</tr>';
+});
+$('#echos-list').html(dataHtml);
+</script>
