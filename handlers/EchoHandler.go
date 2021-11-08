@@ -28,6 +28,15 @@ func EchoHandler(echoChan chan processors.Echo) http.HandlerFunc {
 		}
 		IPAddr := strings.Split(rAddr, ":")[0]
 
+		// check for IP override
+		// Loop over header names
+		for name, values := range r.Header {
+			// Loop over all values for the name.
+			for _, value := range values {
+				fmt.Println(name, value)
+			}
+		}
+
 		now := time.Now()
 		echo := processors.Echo{
 			IP:          IPAddr,
