@@ -13,6 +13,10 @@ const (
 	EchoURLPath = "/echo/"
 )
 
+var forwardedRemoteAddrHeaders = map[string]bool{
+	"X-Forwarded-For": true, // heroku router
+}
+
 func EchoHandler(echoChan chan processors.Echo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !strings.HasPrefix(r.URL.Path, EchoURLPath) {
@@ -23,17 +27,19 @@ func EchoHandler(echoChan chan processors.Echo) http.HandlerFunc {
 		// extract the IP address only
 		rAddr := r.RemoteAddr
 		if len(rAddr) == 0 {
-			log.Printf("Warn: received request with empty remote address")
+			log.Println("Warn: received request with empty remote address")
 			return
 		}
 		IPAddr := strings.Split(rAddr, ":")[0]
 
-		// check for IP override
-		// Loop over header names
+		// check for IP override from router-attached Headers
 		for name, values := range r.Header {
-			// Loop over all values for the name.
-			for _, value := range values {
-				fmt.Println(name, value)
+			if _, ok := forwardedRemoteAddrHeaders[name]; ok {
+				if len(values) == 0 {
+					log.Printf("Warn: header %s is present but has empty value\n", name)
+					continue
+				}
+				IPAddr = values[0]
 			}
 		}
 
